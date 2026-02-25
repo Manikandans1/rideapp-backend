@@ -24,8 +24,27 @@ public class OtpServiceImpl implements OtpService {
         return String.valueOf(new Random().nextInt(9000) + 1000);
     }
 
+    private String normalizePhone(String phone) {
+
+        phone = phone.trim();
+        phone = phone.replaceAll("\\s+", "");
+
+        if (!phone.startsWith("+91")) {
+
+            if (phone.startsWith("91")) {
+                phone = "+" + phone;
+            } else if (phone.length() == 10) {
+                phone = "+91" + phone;
+            }
+        }
+
+        return phone;
+    }
+
     @Override
     public String sendOtp(String phone) {
+
+        phone = normalizePhone(phone);
 
         String otpCode = generateOtp();
 
@@ -56,6 +75,8 @@ public class OtpServiceImpl implements OtpService {
 
     @Override
     public boolean verifyOtp(String phone, String otp) {
+
+        phone = normalizePhone(phone);
 
         return repo.findByPhone(phone)
                 .map(o -> o.getOtp().equals(otp))
